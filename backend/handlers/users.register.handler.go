@@ -14,13 +14,17 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required,min=8,max=72"`
 }
 
-func RegisterHandler(c *gin.Context) {
+type UserHandler struct {
+	service services.UserService
+}
+
+func (s *UserHandler) RegisterHandler(c *gin.Context) {
 	// menginisialisasi struct RegisterRequest
 	var json RegisterRequest
 
 	// menangkap dan memasukan data dari body dan disimpan kedalam variable json,
 	// jika error return kode, status dan message
-	if err := c.ShouldBind(&json); err != nil {
+	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
 			"message": "Format data tidak valid, pastikan field diisi dengan sesuai",
@@ -39,7 +43,7 @@ func RegisterHandler(c *gin.Context) {
 
 	// memasukan mapping kedalam fungsi
 	// !mengikat handler kedalam struct yang memiliki depedency ke service (interface)
-	result, err := services.Register(req)
+	result, err := s.service.Register(req)
 
 	// error handler mapping
 	// !logic mengecek status error dari service
@@ -57,4 +61,10 @@ func RegisterHandler(c *gin.Context) {
 		"message": "register berhasil",
 		"data":    result,
 	})
+}
+
+func NewUserHandler(service services.UserService) *UserHandler {
+	return &UserHandler{
+		service: service,
+	}
 }
