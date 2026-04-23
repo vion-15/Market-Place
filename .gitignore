@@ -1,0 +1,8 @@
+.env
+pgdata/
+
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

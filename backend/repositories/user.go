@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"backend/models"
+	"database/sql"
 	"errors"
 )
 
@@ -11,34 +12,57 @@ type UserRepositories interface {
 	Create(user *models.Users) error
 }
 
-type userRepositories struct {
-	data []*models.Users
+type userPostgresRepositories struct {
+	db *sql.DB
 }
 
-func (d *userRepositories) FindByEmail(email string) (*models.Users, error) {
-	for _, u := range d.data {
-		if u.Email == email {
-			return u, nil
+func (d *userPostgresRepositories) FindByEmail(email string) (*models.Users, error) {
+	var user models.Users
+
+	query := "SELECT id, name, email, phone, role FROM users WHERE email = ($1)"
+
+	err := d.db.QueryRow(query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.Role)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("Data tidak ditemukan")
 		}
+		return nil, err
 	}
-	return nil, errors.New("Data tidak ditemukan")
+	return &user, nil
 }
 
-func (d *userRepositories) FindByNoTelp(noTelp string) (*models.Users, error) {
-	for _, u := range d.data {
-		if u.Phone == noTelp {
-			return u, nil
+func (d *userPostgresRepositories) FindByNoTelp(noTelp string) (*models.Users, error) {
+
+	var user models.Users
+
+	query := "SELECT id, name, email, phone, role FROM users WHERE phone = ($1)"
+
+	err := d.db.QueryRow(query, noTelp).Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.Role)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("Data tidak ditemukan")
 		}
+		return nil, err
 	}
-	return nil, errors.New("Data tidak ditemukan")
+
+	return &user, nil
 }
 
-func (d *userRepositories) Create(user *models.Users) error {
-	d.data = append(d.data, user)
+func (d *userPostgresRepositories) Create(user *models.Users) error {
+	_, err := d.db.Exec("INSERT INTO users (name, email, phone, password, is_email_verified, is_phone_verified, role, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", user.Name, user.Email, user.Phone, user.Password, user.IsEmailVerified, user.IsPhoneVerified, user.Role, user.CreatedAt, user.UpdatedAt)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // depedency injection
-func NewUserRepositories() UserRepositories {
-	return &userRepositories{}
+func NewUserPostgresRepositories(db *sql.DB) UserRepositories {
+	return &userPostgresRepositories{
+		db: db,
+	}
 }

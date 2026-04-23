@@ -13,7 +13,7 @@ type Users struct {
 	PhotoProfile    string     `json:"link" db:"link"`
 	IsEmailVerified bool       `json:"is_email_verified" db:"is_email_verified"`
 	IsPhoneVerified bool       `json:"is_phone_verified" db:"is_phone_verified"`
-	Role            string     `json:"role"`
+	Role            string     `json:"role" db:"role"`
 	CreatedAt       time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at" db:"updated_at"`
 	LastLogin       *time.Time `json:"las_login" db:"last_login"`

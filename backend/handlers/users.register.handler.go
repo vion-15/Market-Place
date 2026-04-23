@@ -42,11 +42,9 @@ func (s *UserHandler) RegisterHandler(c *gin.Context) {
 	}
 
 	// memasukan mapping kedalam fungsi
-	// !mengikat handler kedalam struct yang memiliki depedency ke service (interface)
 	result, err := s.service.Register(req)
 
 	// error handler mapping
-	// !logic mengecek status error dari service
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
