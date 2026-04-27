@@ -12,6 +12,7 @@ import (
 
 type UserService interface {
 	Register(req RegisterRequest) (*UserResponse, error)
+	Login(req LoginRequest) (*UserResponse, error)
 }
 
 type RegisterRequest struct {
@@ -87,6 +88,26 @@ func (s *userService) Register(user RegisterRequest) (*UserResponse, error) {
 		Email: Email,
 		Phone: NoTelp,
 	}, nil
+}
+
+func (s *userService) Login(user LoginRequest) (*UserResponse, error) {
+	Email := user.Email
+	Password := user.Password
+
+	Email = strings.ToLower(Email)
+
+	userData, err := s.repo.FindByEmail(Email)
+
+	if err != nil {
+		return &UserResponse{}, errors.New("Data tidak Ditemukan")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(Password))
+
+	if err != nil {
+		return &UserResponse{}, errors.New("Password Salah")
+	}
+
 }
 
 func NewUserService(repo repositories.UserRepositories) *userService {
