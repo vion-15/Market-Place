@@ -3,6 +3,7 @@ package services
 import (
 	"backend/models"
 	"backend/repositories"
+	"backend/utils"
 	"errors"
 	"strings"
 	"time"
@@ -27,6 +28,12 @@ type UserResponse struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
 	Phone string `json:"phone"`
+	Token string `json:"token"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type userService struct {
@@ -99,15 +106,25 @@ func (s *userService) Login(user LoginRequest) (*UserResponse, error) {
 	userData, err := s.repo.FindByEmail(Email)
 
 	if err != nil {
-		return &UserResponse{}, errors.New("Data tidak Ditemukan")
+		return nil, errors.New("Email atau Password Salah")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(Password))
 
 	if err != nil {
-		return &UserResponse{}, errors.New("Password Salah")
+		return nil, errors.New("Email atau Password Salah")
 	}
 
+	tokenGenerate, err := utils.GenerateToken(userData.ID, userData.Role)
+
+	if err != nil {
+		return nil, errors.New("Gagal Membuat Token")
+	}
+
+	return &UserResponse{
+		Email: user.Email,
+		Token: tokenGenerate,
+	}, nil
 }
 
 func NewUserService(repo repositories.UserRepositories) *userService {

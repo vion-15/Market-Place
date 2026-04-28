@@ -66,6 +66,8 @@ func (s *UserHandler) RegisterHandler(c *gin.Context) {
 	})
 }
 
+func (s *UserHandler) LoginHandler(c *gin.Context) {}
+
 func NewUserHandler(service services.UserService) *UserHandler {
 	return &UserHandler{
 		service: service,
