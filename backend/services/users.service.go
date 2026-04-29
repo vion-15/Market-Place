@@ -5,6 +5,7 @@ import (
 	"backend/repositories"
 	"backend/utils"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -106,12 +107,14 @@ func (s *userService) Login(user LoginRequest) (*UserResponse, error) {
 	userData, err := s.repo.FindByEmail(Email)
 
 	if err != nil {
+		fmt.Println("GAGAL DI DB:", err)
 		return nil, errors.New("Email atau Password Salah")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(Password))
 
 	if err != nil {
+		fmt.Println("GAGAL DI BCRYPT:", err)
 		return nil, errors.New("Email atau Password Salah")
 	}
 

@@ -19,9 +19,9 @@ type userPostgresRepositories struct {
 func (d *userPostgresRepositories) FindByEmail(email string) (*models.Users, error) {
 	var user models.Users
 
-	query := "SELECT id, name, email, phone, role FROM users WHERE email = ($1)"
+	query := "SELECT id, name, email, phone, password, role FROM users WHERE email = ($1)"
 
-	err := d.db.QueryRow(query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.Role)
+	err := d.db.QueryRow(query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.Password, &user.Role)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

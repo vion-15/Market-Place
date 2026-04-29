@@ -66,7 +66,49 @@ func (s *UserHandler) RegisterHandler(c *gin.Context) {
 	})
 }
 
-func (s *UserHandler) LoginHandler(c *gin.Context) {}
+func (s *UserHandler) LoginHandler(c *gin.Context) {
+	var json LoginRequest
+
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Format data tidak valid, pastikan field diisi dengan sesuai",
+			"dbg_msg": err.Error(),
+		})
+		return
+	}
+
+	req := services.LoginRequest{
+		Email:    json.Email,
+		Password: json.Password,
+	}
+
+	result, err := s.service.Login(req)
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.SetCookie(
+		"access_token",
+		result.Token,
+		86400,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login berhasil",
+		"email":   result.Email,
+	})
+
+}
 
 func NewUserHandler(service services.UserService) *UserHandler {
 	return &UserHandler{
