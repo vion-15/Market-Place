@@ -30,6 +30,7 @@ type UserResponse struct {
 	Name  string `json:"name"`
 	Phone string `json:"phone"`
 	Token string `json:"token"`
+	Role  string `json:"role"`
 }
 
 type LoginRequest struct {
@@ -95,6 +96,7 @@ func (s *userService) Register(user RegisterRequest) (*UserResponse, error) {
 		Name:  user.Name,
 		Email: Email,
 		Phone: NoTelp,
+		Role:  newUser.Role,
 	}, nil
 }
 
